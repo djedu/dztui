@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 set -o pipefail
-version=4.0.4
+version=4.1.0-rc.2
 
 aid=221100
 game="dayz"
@@ -32,9 +32,11 @@ sums_path="$helpers_path/sums.md5"
 scmd_file="$helpers_path/scmd.sh"
 km_helper_url="$releases_url/latlon"
 db_file="$releases_url/ips.csv.gz"
-sums_url="$stable_url/helpers/sums.md5"
-scmd_url="$stable_url/helpers/scmd.sh"
-vdf2json_url="$stable_url/helpers/vdf2json.py"
+sums_url="$testing_url/helpers/sums.md5"
+scmd_url="$testing_url/helpers/scmd.sh"
+vdf2json_url="$testing_url/helpers/vdf2json.py"
+notify_url="$testing_url/helpers/d.html"
+notify_img_url="$testing_url/helpers/d.webp"
 forum_url="https://github.com/aclist/dztui/discussions"
 version_file="$config_path/versions"
 steamsafe_zenity="/usr/bin/zenity"
@@ -209,7 +211,7 @@ freedesktop_dirs(){
 	mkdir -p "$freedesktop_path"
 	curl -s "$version_url" > "$sd_install_path/dzgui.sh"
 	chmod +x "$sd_install_path/dzgui.sh"
-	img_url="$stable_url/images"
+	img_url="$testing_url/images"
 	for i in dzgui grid.png hero.png logo.png; do
 		curl -s "$img_url/$i" > "$sd_install_path/$i"
 	done
@@ -316,10 +318,9 @@ logger(){
 	printf "[%s] [%s] %s\n" "$date" "$tag" "$string" >> "$debug_log"
 }
 check_pyver(){
-	local pyver=$(python3 --version | awk '{print $2}')
-    local minor=$(<<< $pyver awk -F. '{print $2}')
-	if [[ -z $pyver ]] || [[ ${pyver:0:1} -lt 3 ]] || [[ $minor -lt 10 ]]; then
-		warn "Requires python >=3.10" &&
+	pyver=$(python3 --version | awk '{print $2}')
+	if [[ -z $pyver ]] || [[ ${pyver:0:1} -lt 3 ]]; then
+		warn "Requires python >=3.0" &&
 		exit
 	fi
 }
@@ -1018,8 +1019,7 @@ generate_log(){
 	Branch: $branch
 	Mode: $mode
 	Auto: $auto_hr
-	Servers:
-    $(print_ip_list)
+	Whitelist: $whitelist
 	Steam path: $steam_path
 	Workshop path: $workshop_dir
 	Game path: $game_dir
@@ -1126,7 +1126,7 @@ popup(){
 		1100) pop "No results found." ;;
 		1200) pop "Timed out. Server may be temporarily offline or not responding to queries." ;;
         1300) pop "No favorite server configured." ;;
-        1400) pop "DZGUI must be run in Desktop Mode on Steam Deck, preferably via the desktop shortcut." ;;
+        1400) pop "DZGUI must be run in Desktop Mode on Steam Deck." ;;
 	esac
 }
 toggle_console_dl(){
@@ -2004,10 +2004,10 @@ fetch_dzq(){
 	curl -Ls "$url" > $helpers_path/a2s/$repo.py
 }
 fetch_query(){
-    local sum="7cbae12ae68b526e7ff376b638123cc7"
+    local sum="d52ff070b5bb36ace2fce2d914479f47"
     local file="$helpers_path/query.py"
     if [[ -f $file ]] && [[ $(md5sum $file | awk '{print $1}') == $sum ]]; then
-        return
+         return
     fi
 	local author="aclist"
 	local repo="dzgui"
@@ -2079,7 +2079,6 @@ steam_deps(){
 initial_setup(){
 	echo "# Initial setup"
 	run_depcheck
-	check_pyver
 	watcher_deps
 	check_architecture
 	check_version
