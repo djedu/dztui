@@ -5,10 +5,22 @@ This is a modified fork of the GUI version of [DZTUI](https://github.com/aclist/
 
 1. Mods now get linked to a subdirectory (!dzworkshop) instead of the root game directory.
 
+To install this version follow the instructions in the original [manual](https://aclist.github.io/dzgui/dzgui.html) and replace the github url with this one.  
+  
+For auto mode:
+```
+curl -s "https://raw.githubusercontent.com/djedu/dztui/dzgui/install.sh" | bash`
+```
 
-For further information regarding this tool see the original repository at [DZTUI](https://github.com/aclist/
+For manual mode:  
+```
+git clone https://github.com/djedu/dztui.git  
+chmod +x dzgui.sh`
+```
 
-##
+For further information regarding this tool see the original repository at [DZTUI](https://github.com/aclist/)
+
+## About DZGUI
 
 DZGUI allows you to connect to both official and modded/community DayZ servers on Linux and provides a graphical interface for doing so. This overcomes certain limitations in the Linux client and helps prepare the game to launch by doing the following:
 
