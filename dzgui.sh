@@ -55,11 +55,8 @@ sums_path="$helpers_path/sums.md5"
 func_helper="$helpers_path/funcs"
 
 #STEAM PATHS
-workshop_path="$steam_path/steamapps/workshop"
-workshop_dir="$workshop_path/content/$aid"
-downloads_dir="$workshop_path/downloads/$aid"
-game_dir="$steam_path/steamapps/common/DayZ"
 workshop_folder="!dzworkshop"
+game_dir="$steam_path/steamapps/common/DayZ"
 symlink_path="$game_dir/$workshop_folder"
 
 #URLS
@@ -91,7 +88,7 @@ logger(){
     printf "%s␞%s␞%s::%s()::%s␞%s\n" "$date" "$tag" "$self" "$caller" "$line" "$string" >> "$debug_log"
 }
 setup_dirs(){
-    for dir in "$state_path" "$cache_path" "$share_path" "$helpers_path" "$freedesktop_path" "$config_path" "$log_path" "$symlink_path"; do
+    for dir in "$state_path" "$cache_path" "$share_path" "$helpers_path" "$freedesktop_path" "$config_path" "$log_path"; do
         if [[ ! -d $dir ]]; then
             mkdir -p "$dir"
         fi
@@ -476,6 +473,11 @@ migrate_files(){
     rm $hist_file
     logger INFO "Wiped old history file"
 }
+setup_workshop(){
+	if [[ ! -d "$symlink_path" ]]; then
+		mkdir -p "$symlink_path"
+	fi
+}
 stale_symlinks(){
     local game_dir="$steam_path/steamapps/common/DayZ"
     for l in $(find "$game_dir/$workshop_folder" -xtype l); do
@@ -548,9 +550,9 @@ fetch_helpers_by_sum(){
         ["ui.py"]="36b9ccdda7561e129861456e36dcb5e0"
         ["query_v2.py"]="1822bd1769ce7d7cb0d686a60f9fa197"
         ["vdf2json.py"]="2f49f6f5d3af919bebaab2e9c220f397"
-        ["funcs"]="3fed32357ed35127f0e4055ace0c9c94"
+        ["funcs"]="d45ecfd105a1b47c21176f5c8d9e4e61"
     )
-    local author="aclist"
+    local author="djedu"
     local repo="dztui"
     local realbranch
     local file
@@ -829,6 +831,7 @@ initial_setup(){
     check_map_count
     steam_deps
     migrate_files
+	setup_workshop
     stale_symlinks
     local_latlon
     is_steam_running
