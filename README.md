@@ -1,7 +1,14 @@
 ## What this is
-DZGUI is a GUI version of [DZTUI](https://github.com/aclist/dztui/tree/dztui) for Linux. 
+This is a modified fork of the GUI version of [DZTUI](https://github.com/aclist/dztui/tree/dztui) for Linux.
 
-Note: development of DZTUI has stopped and has been replaced with DZGUI.
+### Modifications:
+
+1. Mods now get linked to a subdirectory (!dzworkshop) instead of the root game directory.
+
+
+For further information regarding this tool see the original repository at [DZTUI](https://github.com/aclist/
+
+##
 
 DZGUI allows you to connect to both official and modded/community DayZ servers on Linux and provides a graphical interface for doing so. This overcomes certain limitations in the Linux client and helps prepare the game to launch by doing the following:
 

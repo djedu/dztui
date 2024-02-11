@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -o pipefail
 
-version=5.0.3
+version=5.0.3-djedu_fix
 
 #CONSTANTS
 aid=221100
@@ -540,7 +540,7 @@ fetch_helpers_by_sum(){
         ["ui.py"]="36b9ccdda7561e129861456e36dcb5e0"
         ["query_v2.py"]="1822bd1769ce7d7cb0d686a60f9fa197"
         ["vdf2json.py"]="2f49f6f5d3af919bebaab2e9c220f397"
-        ["funcs"]="fdfeedf804435b6d50c95a7b6dfff0f6"
+        ["funcs"]="94287b8c7100e6a78301f6b28040e050"
     )
     local author="djedu"
     local repo="dztui"
