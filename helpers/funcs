@@ -24,7 +24,6 @@ share_path="$HOME/.local/share/$app_name"
 script_path="$share_path/dzgui.sh"
 helpers_path="$share_path/helpers"
 prefix="dzg"
-workshop_folder="dzworkshop"
 
 #LOGS
 log_path="$state_path/logs"
@@ -61,6 +60,8 @@ workshop_path="$steam_path/steamapps/workshop"
 workshop_dir="$workshop_path/content/$aid"
 downloads_dir="$workshop_path/downloads/$aid"
 game_dir="$steam_path/steamapps/common/DayZ"
+workshop_folder="!dzworkshop"
+symlink_path="$game_dir/$workshop_folder"
 
 #URLS
 author="djedu"
@@ -276,12 +277,12 @@ list_mods(){
         logger WARN "Found no locally installed mods"
         return 1
     else
-        for dir in $(find $game_dir/$workshop_folder/* -maxdepth 1 -type l); do
+        for dir in $(find $symlink_path/* -maxdepth 1 -type l); do
             symlink=$(basename $dir)
             sep="␞"
             name=$(awk -F\" '/name/ {print $2}' "${dir}/meta.cpp")
-            base_dir=$(basename $(readlink -f $game_dir/$workshop_folder/$symlink))
-            size=$(du -s "$(readlink -f "$game_dir/$workshop_folder/$symlink")" | awk '{print $1}')
+            base_dir=$(basename $(readlink -f $symlink_path/$symlink))
+            size=$(du -s "$(readlink -f "$symlink_path/$symlink")" | awk '{print $1}')
             size=$(python3 -c "n=($size/1024) +.005; print(round(n,4))")
             printf "%s$sep%s$sep%s$sep%3.3f\n" "$name" "$symlink" "$base_dir" "$size"
         done | sort -k1
@@ -510,9 +511,9 @@ delete_local_mod(){
     local symlink="$1"
     local dir="$2"
     [[ ! -d $workshop_dir/$dir ]] && return 1
-    [[ ! -L $game_dir/$workshop_folder/$symlink ]] && return 1
+    [[ ! -L $symlink_path/$symlink ]] && return 1
     #SC2115
-    rm -rf "${workshop_dir:?}/$dir" && unlink "$game_dir/$workshop_folder/$symlink" || return 1
+    rm -rf "${workshop_dir:?}/$dir" && unlink "$symlink_path/$symlink" || return 1
 }
 dump_servers(){
     local context="$1"
@@ -893,7 +894,6 @@ open_link(){
         xdg-open "$url"
     fi
 }
-
 quick_connect(){
     if [[ -z $fav_server ]]; then
         printf "No favorite server currently set"
@@ -970,8 +970,8 @@ legacy_symlinks(){
     for d in "$workshop_dir"/*; do
         local id=$(awk -F"= " '/publishedid/ {print $2}' "$d"/meta.cpp | awk -F\; '{print $1}')
         local encoded_id=$(echo "$id" | awk '{printf("%c",$1)}' | base64 | sed 's/\//_/g; s/=//g; s/+/]/g')
-        if [[ -h "$game_dir/$workshop_folder/@$encoded_id" ]]; then
-            unlink "$game_dir/$workshop_folder/@$encoded_id"
+        if [[ -h "$symlink_path/@$encoded_id" ]]; then
+            unlink "$symlink_path/@$encoded_id"
         fi
     done
 }
@@ -980,11 +980,11 @@ symlinks(){
         id=$(awk -F"= " '/publishedid/ {print $2}' "$d"/meta.cpp | awk -F\; '{print $1}')
         encoded_id=$(encode "$id")
         link="@$encoded_id"
-        if [[ -h "$game_dir/$workshop_folder/$link" ]]; then
+        if [[ -h "$symlink_path/$link" ]]; then
             logger INFO "Symlink already exists: '$link' for mod '$id'"
             continue
         fi
-        ln -fs "$d" "$game_dir/$workshop_folder/$link"
+        ln -fs "$d" "$symlink_path/$link"
         logger INFO "Created symlink '$link' for mod '$id'"
     done
 }
