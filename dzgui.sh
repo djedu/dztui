@@ -25,6 +25,7 @@ cache_path="$HOME/.cache/$app_name"
 share_path="$HOME/.local/share/$app_name"
 script_path="$share_path/dzgui.sh"
 helpers_path="$share_path/helpers"
+workshop_folder="dzworkshop"
 
 #LOGS
 log_path="$state_path/logs"
@@ -54,7 +55,7 @@ sums_path="$helpers_path/sums.md5"
 func_helper="$helpers_path/funcs"
 
 #URLS
-author="aclist"
+author="djedu"
 repo="dztui"
 url_prefix="https://raw.githubusercontent.com/$author/$repo"
 stable_url="$url_prefix/dzgui"
@@ -467,9 +468,15 @@ migrate_files(){
     rm $hist_file
     logger INFO "Wiped old history file"
 }
+setup_workshop(){
+	local workshop_path="$steam_path/steamapps/common/DayZ/$workshop_folder"
+	if [[ ! -d $workshop_path ]]; then
+		mkdir -p "$workshop_path"
+	fi
+}
 stale_symlinks(){
     local game_dir="$steam_path/steamapps/common/DayZ"
-    for l in $(find "$game_dir" -xtype l); do
+    for l in $(find "$game_dir/$workshop_folder" -xtype l); do
         logger DEBUG "Updating stale symlink '$l'"
         unlink $l
     done
@@ -804,6 +811,7 @@ test_connection(){
 }
 initial_setup(){
     setup_dirs
+	setup_workshop
     setup_state_files
     depcheck
     check_pyver

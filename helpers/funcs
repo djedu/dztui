@@ -24,6 +24,7 @@ share_path="$HOME/.local/share/$app_name"
 script_path="$share_path/dzgui.sh"
 helpers_path="$share_path/helpers"
 prefix="dzg"
+workshop_folder="dzworkshop"
 
 #LOGS
 log_path="$state_path/logs"
@@ -62,7 +63,7 @@ downloads_dir="$workshop_path/downloads/$aid"
 game_dir="$steam_path/steamapps/common/DayZ"
 
 #URLS
-author="aclist"
+author="djedu"
 repo="dztui"
 gh_prefix="https://github.com"
 issues_url="$gh_prefix/$author/$repo/issues"
@@ -275,12 +276,12 @@ list_mods(){
         logger WARN "Found no locally installed mods"
         return 1
     else
-        for dir in $(find $game_dir/* -maxdepth 1 -type l); do
+        for dir in $(find $game_dir/$workshop_folder/* -maxdepth 1 -type l); do
             symlink=$(basename $dir)
             sep="␞"
             name=$(awk -F\" '/name/ {print $2}' "${dir}/meta.cpp")
-            base_dir=$(basename $(readlink -f $game_dir/$symlink))
-            size=$(du -s "$(readlink -f "$game_dir/$symlink")" | awk '{print $1}')
+            base_dir=$(basename $(readlink -f $game_dir/$workshop_folder/$symlink))
+            size=$(du -s "$(readlink -f "$game_dir/$workshop_folder/$symlink")" | awk '{print $1}')
             size=$(python3 -c "n=($size/1024) +.005; print(round(n,4))")
             printf "%s$sep%s$sep%s$sep%3.3f\n" "$name" "$symlink" "$base_dir" "$size"
         done | sort -k1
@@ -509,9 +510,9 @@ delete_local_mod(){
     local symlink="$1"
     local dir="$2"
     [[ ! -d $workshop_dir/$dir ]] && return 1
-    [[ ! -L $game_dir/$symlink ]] && return 1
+    [[ ! -L $game_dir/$workshop_folder/$symlink ]] && return 1
     #SC2115
-    rm -rf "${workshop_dir:?}/$dir" && unlink "$game_dir/$symlink" || return 1
+    rm -rf "${workshop_dir:?}/$dir" && unlink "$game_dir/$workshop_folder/$symlink" || return 1
 }
 dump_servers(){
     local context="$1"
@@ -961,7 +962,7 @@ compare(){
     echo "$diff"
 }
 legacy_symlinks(){
-    for d in "$game_dir"/*; do
+    for d in "$game_dir"/$workshop_folder/*; do
         if [[ $d =~ @[0-9]+-.+ ]]; then
             unlink "$d"
         fi
@@ -969,8 +970,8 @@ legacy_symlinks(){
     for d in "$workshop_dir"/*; do
         local id=$(awk -F"= " '/publishedid/ {print $2}' "$d"/meta.cpp | awk -F\; '{print $1}')
         local encoded_id=$(echo "$id" | awk '{printf("%c",$1)}' | base64 | sed 's/\//_/g; s/=//g; s/+/]/g')
-        if [[ -h "$game_dir/@$encoded_id" ]]; then
-            unlink "$game_dir/@$encoded_id"
+        if [[ -h "$game_dir/$workshop_folder/@$encoded_id" ]]; then
+            unlink "$game_dir/$workshop_folder/@$encoded_id"
         fi
     done
 }
@@ -979,11 +980,11 @@ symlinks(){
         id=$(awk -F"= " '/publishedid/ {print $2}' "$d"/meta.cpp | awk -F\; '{print $1}')
         encoded_id=$(encode "$id")
         link="@$encoded_id"
-        if [[ -h "$game_dir/$link" ]]; then
+        if [[ -h "$game_dir/$workshop_folder/$link" ]]; then
             logger INFO "Symlink already exists: '$link' for mod '$id'"
             continue
         fi
-        ln -fs "$d" "$game_dir/$link"
+        ln -fs "$d" "$game_dir/$workshop_folder/$link"
         logger INFO "Created symlink '$link' for mod '$id'"
     done
 }
@@ -1222,7 +1223,7 @@ concat_mods(){
     for i in "${concat_arr[@]}"; do
         id=$(awk -F"= " '/publishedid/ {print $2}' "$workshop_dir"/$i/meta.cpp | awk -F\; '{print $1}')
         encoded_id=$(encode $id)
-        link="@$encoded_id;"
+        link="$workshop_folder/@$encoded_id;"
         echo -e "$link"
     done | tr -d '\n' | perl -ple 'chop'
 }
