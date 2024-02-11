@@ -54,11 +54,6 @@ km_helper="$helpers_path/latlon"
 sums_path="$helpers_path/sums.md5"
 func_helper="$helpers_path/funcs"
 
-#STEAM PATHS
-workshop_folder="!dzworkshop"
-game_dir="$steam_path/steamapps/common/DayZ"
-symlink_path="$game_dir/$workshop_folder"
-
 #URLS
 author="djedu"
 repo="dztui"
@@ -473,14 +468,9 @@ migrate_files(){
     rm $hist_file
     logger INFO "Wiped old history file"
 }
-setup_workshop(){
-	if [[ ! -d "$symlink_path" ]]; then
-		mkdir -p "$symlink_path"
-	fi
-}
 stale_symlinks(){
     local game_dir="$steam_path/steamapps/common/DayZ"
-    for l in $(find "$game_dir/$workshop_folder" -xtype l); do
+    for l in $(find "$game_dir" -xtype l); do
         logger DEBUG "Updating stale symlink '$l'"
         unlink $l
     done
@@ -550,7 +540,7 @@ fetch_helpers_by_sum(){
         ["ui.py"]="36b9ccdda7561e129861456e36dcb5e0"
         ["query_v2.py"]="1822bd1769ce7d7cb0d686a60f9fa197"
         ["vdf2json.py"]="2f49f6f5d3af919bebaab2e9c220f397"
-        ["funcs"]="d45ecfd105a1b47c21176f5c8d9e4e61"
+        ["funcs"]="fdfeedf804435b6d50c95a7b6dfff0f6"
     )
     local author="djedu"
     local repo="dztui"
@@ -831,7 +821,6 @@ initial_setup(){
     check_map_count
     steam_deps
     migrate_files
-	setup_workshop
     stale_symlinks
     local_latlon
     is_steam_running

@@ -91,6 +91,11 @@ else
     steam_cmd="flatpak run com.valvesoftware.Steam"
 fi
 
+#TEMP: Create symlink folder
+if [[ ! -d "$symlink_path" ]]; then
+    mkdir -p "$symlink_path"
+fi
+
 declare -A funcs=(
 ["My servers"]="dump_servers"
 ["Change player name"]="update_config_val"
