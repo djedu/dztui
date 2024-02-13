@@ -1,44 +1,21 @@
-on:
+name: Scheduled Merge Remote Action
+on: 
   schedule:
-    - cron: '30 5 * * 1,3'
-    - cron: '30 5 * * 2,4'
+    - cron: '0 0 * * 1'
+    # scheduled for 00:00 every Monday
+
 jobs:
-  name: "Merge Upstream"
-  description: "Merge changes from the uppstream repo you had forked from."
-  author: "eXions"
-  branding:
-    icon: git-merge
-    color: black
-
-  inputs:
-    upstream:
-      description: 'Upstream repository owner/name. For example, exions/merge-upstream'
-      required: true
-    upstream-branch:
-      description: 'Upstream branch to merge from. For example, master'
-      default: 'master'
-    branch:
-      description: 'Branch to merge to. For example, master'
-      default: 'master'
-    token:
-      description: >
-        Personal access token (PAT) used to fetch the repository. The PAT is configured
-        with the local git config, which enables your scripts to run authenticated git
-        commands. The post-job step removes the PAT.
-        We recommend using a service account with the least permissions necessary.
-        Also when generating a new PAT, select the least scopes necessary.
-        [Learn more about creating and using encrypted secrets](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/creating-and-using-encrypted-secrets)
-      default: ${{ github.token }}
-
-  runs:
-    using: "composite"
+  merge-upstream:
+    runs-on: ubuntu-latest
     steps: 
-      - run: | 
-          git remote add -f upstream "https://github.com/${{ inputs.upstream }}.git"
-          git remote -v
-          git branch main
-          git config --list
-          git checkout ${{ inputs.branch }}
-          git merge --ff-only upstream/${{ inputs.upstream-branch }}
-          git push 
-     shell: bash
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: upstream             # set the branch to merge to
+          fetch-depth: 0
+      - name: Merge Upstream
+        uses: exions/merge-upstream@v1
+        with:
+          upstream: aclist/dztui      # set the upstream repo
+          upstream-branch: main   # set the upstream branch to merge from
+          branch: main          # set the branch to merge to
