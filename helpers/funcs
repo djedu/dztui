@@ -1251,7 +1251,13 @@ launch(){
         concat=""
     fi
 
-    update_symlinks
+    # Don't update symlinks when in steam deck game mode (pointless and slow)
+    if [[ $(check_architecture) -eq 1 ]] && [[ $(test_display_mode) == "gm" ]]; then
+        printf "Make sure the mods are updated via desktop mode!"
+    else
+        update_symlinks
+    fi
+
     if [[ $debug -eq 1 ]]; then
         local launch_options="$steam_cmd -applaunch $aid -connect=$ip:$gameport -nolauncher -nosplash -name=$name -skipintro \"-mod=$concat\""
         printf "Dry-run mode: these options would have been used to launch the game: $launch_options"
